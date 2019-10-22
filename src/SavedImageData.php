@@ -2,10 +2,8 @@
 
 namespace Gcsc\LaravelMultisizeImage;
 
-
 class SavedImageData
 {
-
     protected $name;
 
     protected $sizes = [];
@@ -83,6 +81,4 @@ class SavedImageData
 
         return $this;
     }
-
-
 }

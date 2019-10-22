@@ -2,13 +2,13 @@
 
 namespace Gcsc\LaravelMultisizeImage\ImageManagers;
 
-use Gcsc\LaravelMultisizeImage\Exceptions\NotValidImageSizeException;
-use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSizeInterface;
-use Gcsc\LaravelMultisizeImage\SavedImageData;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Constraint;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use Gcsc\LaravelMultisizeImage\SavedImageData;
+use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSizeInterface;
+use Gcsc\LaravelMultisizeImage\Exceptions\NotValidImageSizeException;
 
 abstract class AbstractImageManager
 {
@@ -43,7 +43,7 @@ abstract class AbstractImageManager
      */
     public static function getPathForImageSize(ImageSizeInterface $image_size, $name)
     {
-        return static::getPathPrefix() . '/' . $image_size->getSlug() . '/' . $name;
+        return static::getPathPrefix().'/'.$image_size->getSlug().'/'.$name;
     }
 
     /**
@@ -55,21 +55,21 @@ abstract class AbstractImageManager
     public function save($image, $name = null)
     {
         if (is_string($image)) {
-            @list($type, $image) = explode(';', $image);
-            @list(, $image) = explode(',', $image);
-            if (!$name) {
-                $name = md5(uniqid(mt_rand(), true)) . '.' . \Illuminate\Http\Testing\MimeType::search($type);
+            @[$type, $image] = explode(';', $image);
+            @[, $image] = explode(',', $image);
+            if (! $name) {
+                $name = md5(uniqid(mt_rand(), true)).'.'.\Illuminate\Http\Testing\MimeType::search($type);
             }
         }
 
-        if (!$name) {
-            $name = md5(uniqid(mt_rand(), true)) . '.' . $image->getClientOriginalExtension();
+        if (! $name) {
+            $name = md5(uniqid(mt_rand(), true)).'.'.$image->getClientOriginalExtension();
         }
 
         $imageData = new SavedImageData($name);
         foreach ($this->imageSizes() as $image_size_class) {
             $image_size = new $image_size_class();
-            if (!($image_size instanceof ImageSizeInterface)) {
+            if (! ($image_size instanceof ImageSizeInterface)) {
                 throw new NotValidImageSizeException('image size except implement ImageSizeInterface');
             }
 
@@ -80,20 +80,20 @@ abstract class AbstractImageManager
                 $image_size->getWidth(),
                 $image_size->getHeight(),
                 function (Constraint $constraint) use ($image_size) {
-                    if (!$image_size->getForceCrop()) {
+                    if (! $image_size->getForceCrop()) {
                         $constraint->aspectRatio();
                     }
                     $constraint->upsize();
                 }
             );
 
-            $is_saved = Storage::disk($image_size->getDisk())->put($this->getPathForImageSize($image_size, $name), (string)$img->encode());
+            $is_saved = Storage::disk($image_size->getDisk())->put($this->getPathForImageSize($image_size, $name), (string) $img->encode());
 
             if ($is_saved) {
                 $imageData->addSize(
                     $image_size::getSlug(),
                     [
-                        'size' => $img->width() . '/' . $img->height(),
+                        'size' => $img->width().'/'.$img->height(),
                         'width' => $img->width(),
                         'height' => $img->height(),
                     ]
@@ -136,7 +136,7 @@ abstract class AbstractImageManager
         $is_deleted_statuses = [];
         foreach (static::imageSizes() as $image_size_class) {
             $image_size = new $image_size_class();
-            if (!($image_size instanceof ImageSizeInterface)) {
+            if (! ($image_size instanceof ImageSizeInterface)) {
                 throw new NotValidImageSizeException('image size except implement ImageSizeInterface');
             }
             $is_deleted = Storage::disk($image_size->getDisk())->delete(static::getPathForImageSize($image_size, $name));
@@ -148,7 +148,6 @@ abstract class AbstractImageManager
         if (count($is_deleted_statuses) === count(static::imageSizes())) {
             return true;
         }
-
 
         //TODO:: send notification to admin;
 
@@ -164,11 +163,9 @@ abstract class AbstractImageManager
      */
     public function replace($image, $old_name, $new_name = null)
     {
-
         $this->delete($old_name);
 
         return $this->save($image, $new_name);
-
     }
 
     /**
@@ -191,11 +188,11 @@ abstract class AbstractImageManager
         $urls = [];
         foreach (static::imageSizes() as $image_size_class) {
             $image_size = new $image_size_class();
-            if (!($image_size instanceof ImageSizeInterface)) {
+            if (! ($image_size instanceof ImageSizeInterface)) {
                 throw new NotValidImageSizeException('image size except implement ImageSizeInterface');
             }
 
-            $urls[$image_size->getSlug()] = (string)Storage::disk($image_size->getDisk())->url(static::getPathForImageSize($image_size, $name));
+            $urls[$image_size->getSlug()] = (string) Storage::disk($image_size->getDisk())->url(static::getPathForImageSize($image_size, $name));
         }
 
         return $urls;
@@ -205,11 +202,10 @@ abstract class AbstractImageManager
     {
         $size = static::defaultImageSize();
         $image_size = new $size();
-        if (!($image_size instanceof ImageSizeInterface)) {
+        if (! ($image_size instanceof ImageSizeInterface)) {
             throw new NotValidImageSizeException('image size except implement ImageSizeInterface');
         }
 
-        return (string)Storage::disk($image_size->getDisk())->url(self::getPathForImageSize($image_size, $name));
+        return (string) Storage::disk($image_size->getDisk())->url(self::getPathForImageSize($image_size, $name));
     }
-
 }
