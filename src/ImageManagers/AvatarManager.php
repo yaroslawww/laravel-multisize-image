@@ -2,15 +2,14 @@
 
 namespace Gcsc\LaravelMultisizeImage\ImageManagers;
 
-use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSize1500x1500;
+use Illuminate\Database\Eloquent\Model;
 use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSize150x150;
 use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSize300x300;
 use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSize500x500;
-use Illuminate\Database\Eloquent\Model;
+use Gcsc\LaravelMultisizeImage\ImageSizes\ImageSize1500x1500;
 
 class AvatarManager extends AbstractImageManager
 {
-
     protected $model;
 
     /**
@@ -27,7 +26,6 @@ class AvatarManager extends AbstractImageManager
         if ($this->model) {
             return $this->model->avatar;
         }
-        return null;
     }
 
     /**
@@ -47,5 +45,4 @@ class AvatarManager extends AbstractImageManager
     {
         return 'avatars';
     }
-
 }
